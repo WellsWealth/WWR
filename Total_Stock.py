@@ -8,7 +8,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import time
 import os
-df = df.replace([np.inf, -np.inf], 0) 
 
 
 # ─────────────────────────────────────────────
