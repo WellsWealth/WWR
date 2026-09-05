@@ -1,0 +1,33 @@
+name: WWR 
+
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-stock:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: |
+          pip install yfinance pandas numpy scipy pyarrow
+
+      - name: Ejecutar script
+        run: python Total_Stock.py
+
+      - name: Commit y push cambios
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "📈 Actualización automática"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
