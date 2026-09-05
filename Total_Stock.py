@@ -196,7 +196,10 @@ for col in HISTORICAL_ATTRIBUTES:
         )
 
 df_updated.to_parquet(HISTORICAL_FILE, index=False)
-    print(f"\n📚 Histórico actualizado: +{len(new_hist_rows)} registros | "
+
+print(f"\n📚 Histórico actualizado: +{len(new_hist_rows)} registros | "
+      f"total {len(df_updated)} registros")
+
           f"{df_updated['ticker'].nunique()} tickers | "
           f"{len(df_updated)} filas totales")
 else:
