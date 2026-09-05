@@ -178,18 +178,24 @@ if new_hist_rows:
     if df_hist.empty:
         df_updated = df_new
     else:
-        df_updated = pd.concat([df_hist, df_new], ignore_index=True)
-    df_updated = df_updated.sort_values(["ticker", "report_date"]).reset_index(drop=True)
-    
-# Convert historical financial fields to numeric.
-# Invalid values such as "Infinity" become NaN.
+       df_updated = pd.concat([df_hist, df_new], ignore_index=True)
+
+df_updated = df_updated.sort_values(
+    ["ticker", "report_date"]
+).reset_index(drop=True)
+
+# Clean invalid numeric values before saving to Parquet
 for col in HISTORICAL_ATTRIBUTES:
-    if col in df_updated.columns and col != "mostRecentQuarter":
+    if col in df_updated.columns and col not in ["shortName", "sector", "industry"]:
+        df_updated[col] = (
+            df_updated[col]
+            .replace(["Infinity", "-Infinity", "inf", "-inf"], np.nan)
+        )
         df_updated[col] = pd.to_numeric(
             df_updated[col], errors="coerce"
         )
 
-    df_updated.to_parquet(HISTORICAL_FILE, index=False)
+df_updated.to_parquet(HISTORICAL_FILE, index=False)
     print(f"\n📚 Histórico actualizado: +{len(new_hist_rows)} registros | "
           f"{df_updated['ticker'].nunique()} tickers | "
           f"{len(df_updated)} filas totales")
