@@ -175,30 +175,34 @@ if failed:
 # ─────────────────────────────────────────────
 if new_hist_rows:
     df_new = pd.DataFrame(new_hist_rows)
+
     if df_hist.empty:
         df_updated = df_new
     else:
-       df_updated = pd.concat([df_hist, df_new], ignore_index=True)
+        df_updated = pd.concat([df_hist, df_new], ignore_index=True)
 
-df_updated = df_updated.sort_values(
-    ["ticker", "report_date"]
-).reset_index(drop=True)
+    df_updated = df_updated.sort_values(
+        ["ticker", "report_date"]
+    ).reset_index(drop=True)
 
-# Clean invalid numeric values before saving to Parquet
-for col in HISTORICAL_ATTRIBUTES:
-    if col in df_updated.columns and col not in ["shortName", "sector", "industry"]:
-        df_updated[col] = (
-            df_updated[col]
-            .replace(["Infinity", "-Infinity", "inf", "-inf"], np.nan)
-        )
-        df_updated[col] = pd.to_numeric(
-            df_updated[col], errors="coerce"
-        )
+    # Clean invalid numeric values before saving to Parquet
+    for col in HISTORICAL_ATTRIBUTES:
+        if col in df_updated.columns and col not in ["shortName", "sector", "industry"]:
+            df_updated[col] = (
+                df_updated[col]
+                .replace(["Infinity", "-Infinity", "inf", "-inf"], np.nan)
+            )
+            df_updated[col] = pd.to_numeric(
+                df_updated[col], errors="coerce"
+            )
 
-df_updated.to_parquet(HISTORICAL_FILE, index=False)
-df_updated.to_parquet(HISTORICAL_FILE, index=False)
+    df_updated.to_parquet(HISTORICAL_FILE, index=False)
 
-print(f"\n📚 Histórico actualizado: +{len(new_hist_rows)} registros | total {len(df_updated)} filas | {df_updated['ticker'].nunique()} tickers")
+    print(
+        f"\n📚 Histórico actualizado: +{len(new_hist_rows)} registros | "
+        f"total {len(df_updated)} filas | "
+        f"{df_updated['ticker'].nunique()} tickers"
+    )
 
 else:
     print("\n✅ Histórico sin cambios — no hubo nuevos reportes trimestrales.")
