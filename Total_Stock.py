@@ -180,6 +180,15 @@ if new_hist_rows:
     else:
         df_updated = pd.concat([df_hist, df_new], ignore_index=True)
     df_updated = df_updated.sort_values(["ticker", "report_date"]).reset_index(drop=True)
+    
+# Convert historical financial fields to numeric.
+# Invalid values such as "Infinity" become NaN.
+for col in HISTORICAL_ATTRIBUTES:
+    if col in df_updated.columns and col != "mostRecentQuarter":
+        df_updated[col] = pd.to_numeric(
+            df_updated[col], errors="coerce"
+        )
+
     df_updated.to_parquet(HISTORICAL_FILE, index=False)
     print(f"\n📚 Histórico actualizado: +{len(new_hist_rows)} registros | "
           f"{df_updated['ticker'].nunique()} tickers | "
